@@ -1,10 +1,10 @@
-package com.example.myprintservice.ui
+package com.example.nussocprint.ui
 
+import android.app.Activity
 import android.os.Bundle
 import android.widget.TextView
-import androidx.activity.ComponentActivity
 
-class SettingsActivity : ComponentActivity() {
+class SettingsActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -15,3 +15,4 @@ class SettingsActivity : ComponentActivity() {
         setContentView(tv)
     }
 }
+

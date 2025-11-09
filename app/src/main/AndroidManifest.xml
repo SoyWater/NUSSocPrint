@@ -21,24 +21,18 @@
                 <action android:name="android.printservice.PrintService" />
             </intent-filter>
             <meta-data
-                android:name="android.printservice.PRINT_SERVICE_INFO"
+                android:name="android.printservice"
                 android:resource="@xml/print_service_info" />
         </service>
 
-        <!-- UI Activities -->
-        <activity
-            android:name=".ui.AddPrinterActivity"
-            android:exported="false"
-            android:label="Add Printer" />
         <activity
             android:name=".ui.SettingsActivity"
-            android:exported="false"
-            android:label="Print Service Settings"
-            android:permission="android.permission.BIND_PRINT_SERVICE" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
+            android:label="@string/title_activity_add_printer"
+            android:theme="@android:style/Theme.DeviceDefault.Settings"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:permission="android.permission.START_PRINT_SERVICE_CONFIG_ACTIVITY" />
 
 
         <activity

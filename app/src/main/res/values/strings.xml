@@ -6,4 +6,5 @@
     <string name="add_printer_title">Add a Printer</string>
     <string name="settings_title">SoC Account Settings</string>
     <string name="dummy_printer_name">Local Demo Printer</string>
+    <string name="title_activity_add_printer">Settings</string>
 </resources>
