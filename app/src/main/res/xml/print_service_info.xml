@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<print-service
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/print_service_description"
+    android:vendor="@string/print_service_vendor"
+    android:addPrintersActivity="com.example.nussocprint.ui.AddPrinterActivity"
+    android:settingsActivity="com.example.nussocprint.ui.SettingsActivity" />

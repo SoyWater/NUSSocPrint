@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -11,6 +12,35 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.NUSSocPrint">
+
+        <service
+            android:name=".NUSSocPrint"
+            android:permission="android.permission.BIND_PRINT_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.printservice.PrintService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.printservice.PRINT_SERVICE_INFO"
+                android:resource="@xml/print_service_info" />
+        </service>
+
+        <!-- UI Activities -->
+        <activity
+            android:name=".ui.AddPrinterActivity"
+            android:exported="false"
+            android:label="Add Printer" />
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="false"
+            android:label="Print Service Settings"
+            android:permission="android.permission.BIND_PRINT_SERVICE" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

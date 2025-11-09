@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">NUS Soc Print</string>
+    <string name="print_service_description">NUS SoC Printing</string>
+    <string name="print_service_vendor">SoyWater</string>
+
+    <string name="add_printer_title">Add a Printer</string>
+    <string name="settings_title">SoC Account Settings</string>
+    <string name="dummy_printer_name">Local Demo Printer</string>
 </resources>
