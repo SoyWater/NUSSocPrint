@@ -60,4 +60,6 @@ dependencies {
     implementation(libs.smbj)
     implementation(libs.smbjrpc)
     implementation(libs.slf4j.simple)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.tink.android)
 }

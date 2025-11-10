@@ -1,5 +1,6 @@
 [versions]
 agp = "8.13.0"
+datastorePreferences = "1.1.7"
 kotlin = "2.0.21"
 coreKtx = "1.10.1"
 junit = "4.13.2"
@@ -8,12 +9,16 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.09.00"
+securityCrypto = "1.1.0"
 slf4jSimple = "2.0.17"
 smbj = "0.14.0"
 smbj-rpc = "0.12.13"
+tinkAndroid = "1.19.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -30,6 +35,7 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jSimple" }
 smbj = { module = "com.hierynomus:smbj", version.ref = "smbj" }
 smbjrpc = { module = "com.rapid7.client:dcerpc", version.ref="smbj-rpc" }
+tink-android = { module = "com.google.crypto.tink:tink-android", version.ref = "tinkAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

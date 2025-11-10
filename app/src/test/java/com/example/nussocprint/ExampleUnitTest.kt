@@ -12,6 +12,7 @@ import org.junit.Assert.*
 class ExampleUnitTest {
     @Test
     fun listShares_test() {
+
         assertEquals(4, 2 + 2)
     }
 }

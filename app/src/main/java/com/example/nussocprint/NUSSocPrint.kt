@@ -3,9 +3,12 @@ package com.example.nussocprint
 import android.printservice.PrintJob
 import android.printservice.PrintService
 import android.printservice.PrinterDiscoverySession
+import android.util.Log
 
 class NUSSocPrint : PrintService() {
+    private val TAG: String = "MyPrinterDiscovery"
     override fun onCreatePrinterDiscoverySession(): PrinterDiscoverySession {
+        Log.d(TAG, "onCreatePrinterDiscoverySession")
         return SoCDiscoverySession(this)
     }
 
