@@ -36,7 +36,9 @@ class SoCDiscoverySession(private val service: NUSSocPrint) : PrinterDiscoverySe
 
             val socPrinters = getPrinterList(HOST, DOMAIN, credentials.username, credentials.password)
             for (printerName in socPrinters) {
-                val printerId: PrinterId = generatePrinterId(printerName)
+                val printerId: PrinterId = withContext(Dispatchers.Main) {
+                    generatePrinterId(printerName)
+                }
 
                 // Define capabilities (A4, color, 600dpi)
                 val capabilities = PrinterCapabilitiesInfo.Builder(printerId)
