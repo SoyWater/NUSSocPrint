@@ -26,9 +26,6 @@ import kotlinx.coroutines.launch
 class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//
-//        // Initialize encryption primitives early
-//        EncryptedDataStore.init(this)
 
         setContent {
             NUSSocPrintTheme() {
