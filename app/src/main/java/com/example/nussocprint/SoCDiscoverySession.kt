@@ -8,24 +8,22 @@ import android.print.PrinterInfo
 import android.printservice.PrinterDiscoverySession
 import android.util.Log
 import com.example.nussocprint.util.EncryptedDataStore
-import com.example.nussocprint.util.listShares
+import com.example.nussocprint.util.SmbjUtils.getPrinterList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.cancel
 
+private const val TAG: String = "SoCPrinterDiscovery"
 
 class SoCDiscoverySession(private val service: NUSSocPrint) : PrinterDiscoverySession() {
-
-    private val TAG: String = "MyPrinterDiscovery"
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
-    private val host = "nts27.comp.nus.edu.sg"
-    private val domain = "nusstu"
+    private val discoveredPrinters = mutableMapOf<PrinterId, PrinterInfo>()
 
     override fun onStartPrinterDiscovery(priorityList: List<PrinterId?>) {
-        Log.i(TAG, "Starting printer discovery...")
+        Log.i(TAG, "onStartPrinterDiscovery() - Starting Printer Discovery")
 
         scope.launch {
             val credentials = EncryptedDataStore.getCredentials(service.applicationContext)
@@ -34,14 +32,11 @@ class SoCDiscoverySession(private val service: NUSSocPrint) : PrinterDiscoverySe
                 return@launch
             }
 
-            val printers: MutableList<PrinterInfo?> = ArrayList<PrinterInfo?>()
+            val printers: MutableList<PrinterInfo?> = ArrayList()
 
-            val socPrinters = listShares(host, domain, credentials.username, credentials.password)
-            for (printer in socPrinters) {
-                // Generate a local printer ID
-                val printerId: PrinterId = withContext(Dispatchers.Main) {
-                    generatePrinterId(printer)
-                }
+            val socPrinters = getPrinterList(HOST, DOMAIN, credentials.username, credentials.password)
+            for (printerName in socPrinters) {
+                val printerId: PrinterId = generatePrinterId(printerName)
 
                 // Define capabilities (A4, color, 600dpi)
                 val capabilities = PrinterCapabilitiesInfo.Builder(printerId)
@@ -52,11 +47,12 @@ class SoCDiscoverySession(private val service: NUSSocPrint) : PrinterDiscoverySe
                     .build()
 
                 val printer =
-                    PrinterInfo.Builder(printerId, printer, PrinterInfo.STATUS_IDLE)
+                    PrinterInfo.Builder(printerId, printerName, PrinterInfo.STATUS_IDLE)
                         .setCapabilities(capabilities)
                         .build()
 
                 printers.add(printer)
+                discoveredPrinters[printerId] = printer
             }
 
             withContext(Dispatchers.Main) {
@@ -65,28 +61,32 @@ class SoCDiscoverySession(private val service: NUSSocPrint) : PrinterDiscoverySe
         }
     }
 
-    override fun onStopPrinterDiscovery() {
-        Log.d(TAG, "Stopping printer discovery...")
-    }
-
-    override fun onStopPrinterStateTracking(printerId: PrinterId) {
-        TODO("Not yet implemented")
+    /**
+     * Ignore everything below - Only here to satisfy the interface
+     */
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy() - Discovery session destroyed")
+        scope.cancel()
     }
 
     override fun onValidatePrinters(printerIds: List<PrinterId?>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onDestroy() {
-        Log.d(TAG, "Discovery session destroyed")
+        Log.d(TAG, "onValidatePrinters() - Validating Printers: $printerIds")
+        addPrinters(printerIds.mapNotNull { discoveredPrinters[it] })
     }
 
     override fun onStartPrinterStateTracking(printerId: PrinterId) {
-        TODO("Not yet implemented")
+        Log.d(TAG, "onStartPrinterStateTracking($printerId)- no-op")
+    }
+
+    override fun onStopPrinterStateTracking(printerId: PrinterId) {
+        Log.d(TAG, "onStopPrinterStateTracking($printerId) - no-op")
+    }
+
+    override fun onStopPrinterDiscovery() {
+        Log.d(TAG, "onStopPrinterDiscovery() - no-op")
     }
 
     private fun generatePrinterId(localName: String?): PrinterId {
         return service.generatePrinterId(localName)
     }
 }
-
