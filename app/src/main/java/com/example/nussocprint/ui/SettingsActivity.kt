@@ -84,7 +84,7 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                "Configure the Samba (SMB) account used by the print service.",
+                "Configure your NUS account used by the SoC print service.",
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -97,7 +97,8 @@ fun SettingsScreen(
                         singleLine = true,
                         leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("e1234543") }
                     )
 
                     OutlinedTextField(
@@ -112,7 +113,8 @@ fun SettingsScreen(
                             }
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Enter your NUS password") }
                     )
 
                     Text(
