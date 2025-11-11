@@ -1,8 +1,8 @@
-// app/src/main/java/com/example/nussocprint/util/EncryptedDataStore.kt
 package com.example.nussocprint.util
 
 import android.content.Context
 import android.util.Base64
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -13,29 +13,68 @@ import com.google.crypto.tink.RegistryConfiguration
 import com.google.crypto.tink.aead.AeadConfig
 import com.google.crypto.tink.aead.AesGcmKeyManager
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "socprint_settings")
 
 object EncryptedDataStore {
+    private const val TAG = "EncryptedDataStore"
     private const val KEYSET_PREF_NAME = "socprint_encryption_keyset"
     private const val MASTER_KEY_URI = "android-keystore://socprint_master_key"
 
     private var aead: Aead? = null
+
+    private lateinit var appContext: Context
+
+    private val initMutex = Mutex()
+    private var tinkRegistered = false
+
     fun init(context: Context) {
-        AeadConfig.register()
-
-        val keysetHandle = AndroidKeysetManager.Builder()
-            .withSharedPref(context, "socprint_keyset", KEYSET_PREF_NAME)
-            .withKeyTemplate(AesGcmKeyManager.aes256GcmTemplate())
-            .withMasterKeyUri(MASTER_KEY_URI)
-            .build()
-            .keysetHandle
-
-        aead = keysetHandle.getPrimitive(RegistryConfiguration.get(), Aead::class.java)
+        appContext = context.applicationContext
+        try {
+            if (!tinkRegistered) {
+                AeadConfig.register()
+                tinkRegistered = true
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to register Tink AeadConfig", e)
+        }
     }
 
-    private fun requireAead(): Aead = aead ?: throw IllegalStateException("EncryptedDataStore not initialized. Call EncryptedDataStore.init(context) before use.")
+    private suspend fun ensureInitialized() {
+        if (aead != null) return
+        initMutex.withLock {
+            if (aead != null) return
+            withContext(Dispatchers.IO) {
+                try {
+                    val keysetHandle = AndroidKeysetManager.Builder()
+                        .withSharedPref(appContext, "socprint_keyset", KEYSET_PREF_NAME)
+                        .withKeyTemplate(AesGcmKeyManager.aes256GcmTemplate())
+                        .withMasterKeyUri(MASTER_KEY_URI)
+                        .build()
+                        .keysetHandle
+
+                    aead = keysetHandle.getPrimitive(RegistryConfiguration.get(), Aead::class.java)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to initialize keyset/Aead", e)
+                    throw e
+                }
+            }
+        }
+    }
+
+    private suspend fun requireAead(): Aead {
+        try {
+            ensureInitialized()
+        } catch (e: Exception) {
+            throw IllegalStateException("EncryptedDataStore initialization failed", e)
+        }
+        return aead ?: throw IllegalStateException("EncryptedDataStore initialization failed")
+    }
 
     data class Credentials(
         val username: String,
@@ -59,7 +98,13 @@ object EncryptedDataStore {
     }
 
     suspend fun getCredentials(context: Context): Credentials? {
-        val primitive = requireAead()
+        val primitive = try {
+            requireAead()
+        } catch (e: Exception) {
+            Log.w(TAG, "Aead unavailable when retrieving credentials", e)
+            return null
+        }
+
         return try {
             val prefs = context.dataStore.data.first()
             val encUserB64 = prefs[USERNAME_KEY] ?: return null
@@ -72,7 +117,8 @@ object EncryptedDataStore {
             val password = primitive.decrypt(encPass, "password".toByteArray(Charsets.UTF_8)).toString(Charsets.UTF_8)
 
             Credentials(username = username, password = password)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to decrypt credentials", e)
             null
         }
     }
