@@ -19,7 +19,7 @@ import java.io.IOException
 
 private const val TAG: String = "SoCPrintService"
 
-const val HOST: String = "nts27.comp.nus.edu.sg"
+const val HOST: String = "nts27b.comp.nus.edu.sg"
 const val DOMAIN: String = "nusstu"
 
 // run a function on main thread, reduce boilerplate
